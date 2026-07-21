@@ -20,7 +20,6 @@ import android.widget.Button
 import android.widget.EditText
 import android.widget.TextView
 import androidx.core.app.NotificationCompat
-import kotlin.random.Random
 
 /**
  * Ekranın üzerinde kalıcı bir kontrol paneli gösteren servis.
@@ -37,15 +36,20 @@ class OverlayService : Service() {
     private var selectedRegion: Rect? = null
     private var intervalMs: Long = 500
     private var isClicking = false
+    private var blacklistWords: List<String> = emptyList()
+    private var whitelistWords: List<String> = emptyList()
 
     private val clickHandler = Handler(Looper.getMainLooper())
     private val clickRunnable = object : Runnable {
         override fun run() {
             if (!isClicking) return
             selectedRegion?.let { rect ->
-                val x = Random.nextInt(rect.left, maxOf(rect.right, rect.left + 1)).toFloat()
-                val y = Random.nextInt(rect.top, maxOf(rect.bottom, rect.top + 1)).toFloat()
-                ClickAccessibilityService.instance?.performTap(x, y)
+                // Bölge içindeki buton/yazı etiketlerini okuyup filtreye uyan
+                // bir öğe bulunursa gerçek buton tıklaması gönderir.
+                // Uygun öğe bulunamazsa bu turda hiçbir şeye dokunulmaz.
+                ClickAccessibilityService.instance?.performFilteredClick(
+                    rect, blacklistWords, whitelistWords
+                )
             }
             clickHandler.postDelayed(this, intervalMs)
         }
@@ -128,6 +132,8 @@ class OverlayService : Service() {
         }
 
         val etInterval = panel.findViewById<EditText>(R.id.etInterval)
+        val etBlacklist = panel.findViewById<EditText>(R.id.etBlacklist)
+        val etWhitelist = panel.findViewById<EditText>(R.id.etWhitelist)
         val tvRegionInfo = panel.findViewById<TextView>(R.id.tvRegionInfo)
         val btnSelectRegion = panel.findViewById<Button>(R.id.btnSelectRegion)
         val btnToggleStart = panel.findViewById<Button>(R.id.btnToggleStart)
@@ -148,6 +154,15 @@ class OverlayService : Service() {
             }
             val enteredInterval = etInterval.text.toString().toLongOrNull()
             intervalMs = enteredInterval?.coerceAtLeast(50L) ?: 500L
+
+            blacklistWords = etBlacklist.text.toString()
+                .split(",")
+                .map { it.trim() }
+                .filter { it.isNotEmpty() }
+            whitelistWords = etWhitelist.text.toString()
+                .split(",")
+                .map { it.trim() }
+                .filter { it.isNotEmpty() }
 
             isClicking = !isClicking
             if (isClicking) {
