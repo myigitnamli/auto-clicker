@@ -36,20 +36,17 @@ class OverlayService : Service() {
     private var selectedRegion: Rect? = null
     private var intervalMs: Long = 500
     private var isClicking = false
-    private var blacklistWords: List<String> = emptyList()
-    private var whitelistWords: List<String> = emptyList()
+    private var keywordList: List<String> = emptyList()
 
     private val clickHandler = Handler(Looper.getMainLooper())
     private val clickRunnable = object : Runnable {
         override fun run() {
             if (!isClicking) return
             selectedRegion?.let { rect ->
-                // Bölge içindeki buton/yazı etiketlerini okuyup filtreye uyan
-                // bir öğe bulunursa gerçek buton tıklaması gönderir.
-                // Uygun öğe bulunamazsa bu turda hiçbir şeye dokunulmaz.
-                ClickAccessibilityService.instance?.performFilteredClick(
-                    rect, blacklistWords, whitelistWords
-                )
+                // Bölge içinde anahtar kelimelerden birini içeren bir buton
+                // bulunursa gerçek buton tıklaması gönderir; bulunamazsa bu
+                // turda hiçbir şeye dokunulmaz.
+                ClickAccessibilityService.instance?.performKeywordClick(rect, keywordList)
             }
             clickHandler.postDelayed(this, intervalMs)
         }
@@ -132,8 +129,7 @@ class OverlayService : Service() {
         }
 
         val etInterval = panel.findViewById<EditText>(R.id.etInterval)
-        val etBlacklist = panel.findViewById<EditText>(R.id.etBlacklist)
-        val etWhitelist = panel.findViewById<EditText>(R.id.etWhitelist)
+        val etKeywords = panel.findViewById<EditText>(R.id.etKeywords)
         val tvRegionInfo = panel.findViewById<TextView>(R.id.tvRegionInfo)
         val btnSelectRegion = panel.findViewById<Button>(R.id.btnSelectRegion)
         val btnToggleStart = panel.findViewById<Button>(R.id.btnToggleStart)
@@ -155,14 +151,15 @@ class OverlayService : Service() {
             val enteredInterval = etInterval.text.toString().toLongOrNull()
             intervalMs = enteredInterval?.coerceAtLeast(50L) ?: 500L
 
-            blacklistWords = etBlacklist.text.toString()
+            keywordList = etKeywords.text.toString()
                 .split(",")
                 .map { it.trim() }
                 .filter { it.isNotEmpty() }
-            whitelistWords = etWhitelist.text.toString()
-                .split(",")
-                .map { it.trim() }
-                .filter { it.isNotEmpty() }
+
+            if (keywordList.isEmpty()) {
+                tvRegionInfo.text = "En az bir anahtar kelime gir!"
+                return@setOnClickListener
+            }
 
             isClicking = !isClicking
             if (isClicking) {

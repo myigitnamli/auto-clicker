@@ -48,32 +48,26 @@ class ClickAccessibilityService : AccessibilityService() {
     }
 
     /**
-     * Seçilen bölge içindeki tıklanabilir öğeleri tarar; metni (veya
-     * içerik açıklamasını) blacklist'te geçen bir kelime içeriyorsa o öğeyi
-     * ATLAR. whitelist doluysa, sadece whitelist'teki kelimelerden birini
-     * içeren öğelere tıklar. Uygun ilk öğeyi bulunca gerçek bir "tıkla"
-     * eylemi (ACTION_CLICK) gönderir ve true döner. Uygun öğe yoksa false.
+     * Seçilen bölge içindeki tıklanabilir öğeleri tarar; metni (veya içerik
+     * açıklamasını) verilen anahtar kelimelerden birini içeren İLK öğeyi
+     * bulunca gerçek bir "tıkla" eylemi (ACTION_CLICK) gönderir ve true
+     * döner. Eşleşen öğe yoksa false.
      *
      * ACTION_CLICK, koordinata dokunmak yerine butonun kendisini tetiklediği
      * için WebView olmayan normal Android arayüzlerinde koordinat tabanlı
      * tıklamadan çok daha güvenilirdir.
      */
-    fun performFilteredClick(region: Rect, blacklist: List<String>, whitelist: List<String>): Boolean {
+    fun performKeywordClick(region: Rect, keywords: List<String>): Boolean {
+        if (keywords.isEmpty()) return false
         val root = rootInActiveWindow ?: return false
-        val target = findMatchingNode(root, region, blacklist, whitelist)
-        return if (target != null) {
-            val result = target.performAction(AccessibilityNodeInfo.ACTION_CLICK)
-            result
-        } else {
-            false
-        }
+        val target = findMatchingNode(root, region, keywords)
+        return target?.performAction(AccessibilityNodeInfo.ACTION_CLICK) ?: false
     }
 
     private fun findMatchingNode(
         root: AccessibilityNodeInfo,
         region: Rect,
-        blacklist: List<String>,
-        whitelist: List<String>
+        keywords: List<String>
     ): AccessibilityNodeInfo? {
         val stack = ArrayDeque<AccessibilityNodeInfo>()
         stack.addLast(root)
@@ -87,11 +81,8 @@ class ClickAccessibilityService : AccessibilityService() {
                 val label = (node.text?.toString() ?: node.contentDescription?.toString() ?: "")
                     .lowercase()
 
-                val isBlacklisted = blacklist.any { it.isNotBlank() && label.contains(it.lowercase()) }
-                val passesWhitelist = whitelist.isEmpty() ||
-                    whitelist.any { it.isNotBlank() && label.contains(it.lowercase()) }
-
-                if (!isBlacklisted && passesWhitelist) {
+                val matches = keywords.any { it.isNotBlank() && label.contains(it.lowercase()) }
+                if (matches) {
                     return node
                 }
             }

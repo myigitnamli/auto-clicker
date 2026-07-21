@@ -10,13 +10,11 @@ Uygulama tamamen cihazında çalışır, hiçbir veri internete gönderilmez.
 ## Özellikler
 - Ayarlanabilir tıklama aralığı (ms)
 - Ekranda sürükleyerek dikdörtgen bölge seçme
-- **Metin tabanlı filtreleme**: seçilen bölgedeki butonların/yazıların
-  gerçek etiketini okuyup karar verir.
-  - **Hariç tut listesi**: örneğin "satın al, premium" yazarsan, bu
-    kelimelerden birini içeren hiçbir butona asla tıklamaz.
-  - **Sadece bunlara bas listesi** (opsiyonel): doldurursan, sadece bu
-    kelimelerden birini içeren butonlara tıklar; boş bırakırsan
-    (hariç tutulanlar dışında) bölgedeki her tıklanabilir öğeye basar.
+- **Anahtar kelime tabanlı tıklama**: seçilen bölgedeki butonların/yazıların
+  gerçek etiketini okur; girdiğin anahtar kelimelerden birini içeren bir
+  butona rastladığında otomatik olarak ona tıklar (örn. `topla, ödül al,
+  devam` yazarsan sadece bu kelimelerden birini içeren butonlara basar,
+  başka hiçbir yere dokunmaz).
   - Tıklama, koordinatı rastgele "dürtmek" yerine gerçek butonun kendisini
     tetikler (ACTION_CLICK) — bu yüzden normal Android arayüzlerinde
     (native View tabanlı uygulamalar) çok daha güvenilirdir. Not: Bu yöntem
@@ -45,13 +43,12 @@ Uygulama tamamen cihazında çalışır, hiçbir veri internete gönderilmez.
    panel belirir.
 3. Panelde **"Bölge Seç"**'e bas, ekranda taranmasını istediğin alanı
    parmağınla sürükleyerek işaretle (örneğin butonların olduğu bölge).
-4. İstersen **"Hariç tut"** kutusuna virgülle ayırarak asla tıklanmasını
-   istemediğin kelimeleri yaz (ör. `satın al, premium, reklam`).
-5. İstersen **"Sadece bunlara bas"** kutusuna sadece tıklanmasını istediğin
-   kelimeleri yaz (boş bırakırsan, hariç tutulanlar dışında her şeye basar).
-6. Aralığı (ms) gir, **"Başlat"**a bas. Durdurmak için tekrar aynı butona bas
+4. **"Anahtar kelimeler"** kutusuna, tıklanmasını istediğin butonların
+   üzerinde geçen kelimeleri virgülle ayırarak yaz (ör. `topla, ödül al,
+   devam`). Bu kelimelerden biri geçmeyen hiçbir butona dokunulmaz.
+5. Aralığı (ms) gir, **"Başlat"**a bas. Durdurmak için tekrar aynı butona bas
    (artık "Durdur" yazacak).
-7. Paneli tamamen kapatmak için **"Kapat"**a bas.
+6. Paneli tamamen kapatmak için **"Kapat"**a bas.
 
 ## Önemli notlar
 - Bazı oyun/uygulamaların kullanım şartları otomasyon araçlarını

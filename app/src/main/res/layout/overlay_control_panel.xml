@@ -35,24 +35,22 @@
         android:text="Bölge Seç" />
 
     <EditText
-        android:id="@+id/etBlacklist"
+        android:id="@+id/etKeywords"
         android:layout_width="220dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
-        android:hint="Hariç tut (virgülle): satın al, premium"
+        android:hint="Anahtar kelimeler: topla, ödül al, devam"
         android:textColor="@color/white"
         android:textColorHint="#AAAAAA"
         android:textSize="12sp" />
 
-    <EditText
-        android:id="@+id/etWhitelist"
-        android:layout_width="220dp"
+    <TextView
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="4dp"
-        android:hint="Sadece bunlara bas (boş=hepsi): topla"
-        android:textColor="@color/white"
-        android:textColorHint="#AAAAAA"
-        android:textSize="12sp" />
+        android:text="Bu kelimelerden birini içeren butona rastlarsa otomatik tıklar"
+        android:textColor="#999999"
+        android:textSize="10sp"
+        android:layout_marginTop="2dp" />
 
     <TextView
         android:id="@+id/tvRegionInfo"
