@@ -23,16 +23,52 @@ Uygulama tamamen cihazında çalışır, hiçbir veri internete gönderilmez.
 - Ekranın üzerinde kalan, sürüklenebilir kontrol paneli (Başlat/Durdur)
 
 ## Gereksinimler
-- Android Studio (Koala veya üzeri önerilir)
-- Android 8.0 (API 26) veya üzeri bir telefon/emülatör
+- Bir GitHub hesabı
+- Android 8.0 (API 26) veya üzeri bir telefon
 
-## Kurulum (Android Studio ile)
-1. Android Studio'yu aç → **Open** → bu proje klasörünü seç.
-2. Studio ilk açılışta Gradle'ı senkronize edecek (internet ister, birkaç
-   dakika sürebilir). "Sync Now" çıkarsa tıkla.
-3. Telefonunu USB ile bağla (Geliştirici Seçenekleri > USB hata ayıklama açık
-   olmalı) veya bir emülatör başlat.
-4. Üstteki yeşil ▶️ **Run** düğmesine bas.
+## Kurulum ve APK'yı derletme (Android Studio GEREKMEZ)
+
+Bu projede `.github/workflows/build-apk.yml` adında bir GitHub Actions
+tanımı var. Kodu GitHub'a push ettiğinde, GitHub'ın kendi sunucuları
+otomatik olarak APK'yı senin için derler; sen sadece bitmiş dosyayı
+indirirsin.
+
+### 1. Adım — Projeyi kendi GitHub hesabına yükle
+Klasörün içindeyken terminalde (git zaten bu proje içinde başlatılmış ve
+commit edilmiş durumda):
+
+```bash
+git remote add origin https://github.com/KULLANICI_ADIN/REPO_ADIN.git
+git push -u origin main
+```
+
+(Önce GitHub'da boş bir repo oluşturman gerekiyor: github.com/new — "Add a
+README" seçeneğini işaretlemeden oluştur.)
+
+### 2. Adım — Derlemenin bitmesini bekle
+1. GitHub'da repo sayfana git → üstteki **Actions** sekmesine tıkla.
+2. "APK Derle" adlı workflow'u göreceksin, push sonrası otomatik
+   başlamış olmalı (birkaç dakika sürer). Sarı nokta = çalışıyor,
+   yeşil tik = bitti.
+3. Otomatik başlamadıysa: Actions sekmesinde soldan "APK Derle"yi seç →
+   sağ üstten **"Run workflow"** butonuna bas.
+
+### 3. Adım — APK'yı indir
+1. Tamamlanan (yeşil tikli) workflow çalıştırmasına tıkla.
+2. Sayfanın altında **Artifacts** bölümünde `auto-clicker-apk` adlı bir
+   zip dosyası göreceksin, ona tıklayıp indir.
+3. Zip'i aç, içinden `app-debug.apk` dosyasını telefonuna aktar (WhatsApp
+   kendine mesaj, Google Drive, USB kablo — hangisi kolaysa).
+
+### 4. Adım — Telefona kur
+1. Telefonda APK dosyasına dokun, kurulum isteyecek.
+2. "Bilinmeyen kaynaklardan yükleme" izni istenirse onayla (Play Store
+   dışından kurduğun için normal bir uyarıdır).
+3. Kurulum bitince uygulamayı aç.
+
+> Kod üzerinde değişiklik yapıp tekrar `git push` ettiğinde, yeni bir
+> derleme otomatik başlar; her seferinde Actions → Artifacts'tan güncel
+> APK'yı indirebilirsin.
 
 ## Kullanım
 1. Uygulama açıldığında sırasıyla:
@@ -61,17 +97,3 @@ Uygulama tamamen cihazında çalışır, hiçbir veri internete gönderilmez.
 - Bölge seçimi ve aralık şu an kalıcı olarak saklanmıyor (uygulama
   kapanınca sıfırlanır). İstersen `SharedPreferences` ekleyip kalıcı hale
   getirebiliriz.
-
-## Bu projeyi kendi GitHub hesabına yükleme
-Proje klasörünün içindeyken terminalde:
-
-```bash
-git init
-git add .
-git commit -m "İlk sürüm: Auto Clicker Android uygulaması"
-git branch -M main
-git remote add origin https://github.com/KULLANICI_ADIN/REPO_ADIN.git
-git push -u origin main
-```
-
-(Önce GitHub'da boş bir repo oluşturman gerekiyor: github.com/new)
