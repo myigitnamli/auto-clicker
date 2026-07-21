@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">Auto Clicker</string>
+    <string name="accessibility_service_description">Bu servis, seçtiğiniz ekran bölgesinde belirlediğiniz aralıklarla otomatik dokunma yapmanızı sağlar. Sadece siz başlattığınızda ve durdurana kadar çalışır.</string>
+</resources>
