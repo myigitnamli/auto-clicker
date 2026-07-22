@@ -165,10 +165,26 @@ class OverlayService : Service() {
         }
 
         btnSelectRegion.setOnClickListener {
+            etInterval.clearFocus()
+            etKeywords.clearFocus()
+            imm.hideSoftInputFromWindow(panel.windowToken, 0)
+            params.flags = params.flags or WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE
+            windowManager.updateViewLayout(panel, params)
             startRegionSelection(tvRegionInfo)
         }
 
         btnToggleStart.setOnClickListener {
+            // Anahtar kelime/aralık kutusunda klavye hâlâ açıksa ve panel
+            // odaklanabilir durumdaysa, erişilebilirlik servisi ekranı
+            // tararken kendi panelimizi (klavye açık EditText'i) bulup ona
+            // tıklayabilir. Bunu önlemek için başlamadan önce klavyeyi ve
+            // odağı kesin olarak kapatıyoruz.
+            etInterval.clearFocus()
+            etKeywords.clearFocus()
+            imm.hideSoftInputFromWindow(panel.windowToken, 0)
+            params.flags = params.flags or WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE
+            windowManager.updateViewLayout(panel, params)
+
             if (ClickAccessibilityService.instance == null) {
                 tvRegionInfo.text = "Önce Erişilebilirlik iznini vermelisin!"
                 return@setOnClickListener
