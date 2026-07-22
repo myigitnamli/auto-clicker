@@ -16,6 +16,7 @@ import android.view.LayoutInflater
 import android.view.MotionEvent
 import android.view.View
 import android.view.WindowManager
+import android.view.inputmethod.InputMethodManager
 import android.widget.Button
 import android.widget.EditText
 import android.widget.TextView
@@ -134,6 +135,34 @@ class OverlayService : Service() {
         val btnSelectRegion = panel.findViewById<Button>(R.id.btnSelectRegion)
         val btnToggleStart = panel.findViewById<Button>(R.id.btnToggleStart)
         val btnClosePanel = panel.findViewById<Button>(R.id.btnClosePanel)
+
+        // Panel varsayılan olarak FLAG_NOT_FOCUSABLE ile açılıyor ki arkadaki
+        // uygulamayı/oyunu engellemesin. Ama bu bayrak açıkken klavye asla
+        // açılmaz. Bu yüzden bir EditText'e dokunulduğunda bayrağı geçici
+        // olarak kaldırıp klavyeyi açıyoruz; yazma bitince (focus kaybolunca)
+        // bayrağı geri takıp arkadaki uygulamaya dokunuşların geçmesine
+        // tekrar izin veriyoruz.
+        val imm = getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager
+
+        fun enableTextInput(target: EditText) {
+            params.flags = params.flags and WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE.inv()
+            windowManager.updateViewLayout(panel, params)
+            target.requestFocus()
+            imm.showSoftInput(target, InputMethodManager.SHOW_IMPLICIT)
+        }
+
+        fun disableTextInput(target: EditText) {
+            imm.hideSoftInputFromWindow(target.windowToken, 0)
+            params.flags = params.flags or WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE
+            windowManager.updateViewLayout(panel, params)
+        }
+
+        listOf(etInterval, etKeywords).forEach { editText ->
+            editText.setOnClickListener { enableTextInput(editText) }
+            editText.setOnFocusChangeListener { _, hasFocus ->
+                if (!hasFocus) disableTextInput(editText)
+            }
+        }
 
         btnSelectRegion.setOnClickListener {
             startRegionSelection(tvRegionInfo)
