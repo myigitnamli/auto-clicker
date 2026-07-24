@@ -1,4 +1,4 @@
 <resources>
-    <string name="app_name">Auto Clicker</string>
+    <string name="app_name">MY Günlük</string>
     <string name="accessibility_service_description">Bu servis, seçtiğiniz ekran bölgesindeki buton/yazı etiketlerini okuyarak, belirlediğiniz filtrelere uyan öğelere otomatik dokunma yapmanızı sağlar. Sadece siz başlattığınızda ve durdurana kadar çalışır, hiçbir veri cihazınızın dışına gönderilmez.</string>
 </resources>
