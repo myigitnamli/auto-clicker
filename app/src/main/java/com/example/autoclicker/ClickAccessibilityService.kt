@@ -48,42 +48,43 @@ class ClickAccessibilityService : AccessibilityService() {
     }
 
     /**
-     * Seçilen bölge içindeki tıklanabilir öğeleri tarar; metni (veya içerik
-     * açıklamasını) verilen anahtar kelimelerden birini içeren İLK öğeyi
-     * bulunca gerçek bir "tıkla" eylemi (ACTION_CLICK) gönderir ve true
-     * döner. Eşleşen öğe yoksa false.
+     * Seçilen bölge içindeki TÜM öğelerin metnini (sadece tıklanabilir olanları
+     * değil) tarar ve verilen anahtar kelimelerden kaç farklısının ekranda
+     * geçtiğini sayar. Eğer bu sayı `minMatches` değerine ulaşırsa VE bölgede
+     * bu kelimelerden birini içeren tıklanabilir bir öğe bulunduysa, o öğeye
+     * gerçek bir "tıkla" eylemi (ACTION_CLICK) gönderir.
      *
-     * ACTION_CLICK, koordinata dokunmak yerine butonun kendisini tetiklediği
-     * için WebView olmayan normal Android arayüzlerinde koordinat tabanlı
-     * tıklamadan çok daha güvenilirdir.
+     * Örnek: keywords = ["Araba", "Onay"], minMatches = 2 ise; ekranda sadece
+     * "Onay" yazan bir buton olması yetmez, aynı anda "Araba" kelimesi de
+     * (örn. dialog metninde) geçmelidir. İkisi de geçtiğinde "Onay" butonuna
+     * tıklanır.
      */
-    fun performKeywordClick(region: Rect, keywords: List<String>): Boolean {
+    fun performKeywordClick(region: Rect, keywords: List<String>, minMatches: Int): Boolean {
         if (keywords.isEmpty()) return false
         val root = rootInActiveWindow ?: return false
-        val target = findMatchingNode(root, region, keywords)
-        return target?.performAction(AccessibilityNodeInfo.ACTION_CLICK) ?: false
-    }
 
-    private fun findMatchingNode(
-        root: AccessibilityNodeInfo,
-        region: Rect,
-        keywords: List<String>
-    ): AccessibilityNodeInfo? {
+        val matchedKeywords = mutableSetOf<String>()
+        var clickTarget: AccessibilityNodeInfo? = null
+
         val stack = ArrayDeque<AccessibilityNodeInfo>()
         stack.addLast(root)
         val bounds = Rect()
 
         while (stack.isNotEmpty()) {
             val node = stack.removeLast()
-
             node.getBoundsInScreen(bounds)
-            if (node.isClickable && Rect.intersects(bounds, region)) {
+
+            if (Rect.intersects(bounds, region)) {
                 val label = (node.text?.toString() ?: node.contentDescription?.toString() ?: "")
                     .lowercase()
 
-                val matches = keywords.any { it.isNotBlank() && label.contains(it.lowercase()) }
-                if (matches) {
-                    return node
+                for (keyword in keywords) {
+                    if (keyword.isNotBlank() && label.contains(keyword.lowercase())) {
+                        matchedKeywords.add(keyword.lowercase())
+                        if (node.isClickable && clickTarget == null) {
+                            clickTarget = node
+                        }
+                    }
                 }
             }
 
@@ -91,6 +92,12 @@ class ClickAccessibilityService : AccessibilityService() {
                 node.getChild(i)?.let { stack.addLast(it) }
             }
         }
-        return null
+
+        val target = clickTarget
+        return if (matchedKeywords.size >= minMatches && target != null) {
+            target.performAction(AccessibilityNodeInfo.ACTION_CLICK)
+        } else {
+            false
+        }
     }
 }
