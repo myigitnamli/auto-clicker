@@ -38,16 +38,17 @@ class OverlayService : Service() {
     private var intervalMs: Long = 500
     private var isClicking = false
     private var keywordList: List<String> = emptyList()
+    private var minMatches: Int = 1
 
     private val clickHandler = Handler(Looper.getMainLooper())
     private val clickRunnable = object : Runnable {
         override fun run() {
             if (!isClicking) return
             selectedRegion?.let { rect ->
-                // Bölge içinde anahtar kelimelerden birini içeren bir buton
-                // bulunursa gerçek buton tıklaması gönderir; bulunamazsa bu
-                // turda hiçbir şeye dokunulmaz.
-                ClickAccessibilityService.instance?.performKeywordClick(rect, keywordList)
+                // Bölgedeki anahtar kelimelerden en az minMatches tanesi
+                // aynı anda görünüyorsa, o bölgedeki uygun tıklanabilir
+                // butona gerçek bir tıklama gönderir.
+                ClickAccessibilityService.instance?.performKeywordClick(rect, keywordList, minMatches)
             }
             clickHandler.postDelayed(this, intervalMs)
         }
@@ -131,6 +132,7 @@ class OverlayService : Service() {
 
         val etInterval = panel.findViewById<EditText>(R.id.etInterval)
         val etKeywords = panel.findViewById<EditText>(R.id.etKeywords)
+        val etMinMatches = panel.findViewById<EditText>(R.id.etMinMatches)
         val tvRegionInfo = panel.findViewById<TextView>(R.id.tvRegionInfo)
         val btnSelectRegion = panel.findViewById<Button>(R.id.btnSelectRegion)
         val btnToggleStart = panel.findViewById<Button>(R.id.btnToggleStart)
@@ -157,7 +159,7 @@ class OverlayService : Service() {
             windowManager.updateViewLayout(panel, params)
         }
 
-        listOf(etInterval, etKeywords).forEach { editText ->
+        listOf(etInterval, etKeywords, etMinMatches).forEach { editText ->
             editText.setOnClickListener { enableTextInput(editText) }
             editText.setOnFocusChangeListener { _, hasFocus ->
                 if (!hasFocus) disableTextInput(editText)
@@ -167,6 +169,7 @@ class OverlayService : Service() {
         btnSelectRegion.setOnClickListener {
             etInterval.clearFocus()
             etKeywords.clearFocus()
+            etMinMatches.clearFocus()
             imm.hideSoftInputFromWindow(panel.windowToken, 0)
             params.flags = params.flags or WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE
             windowManager.updateViewLayout(panel, params)
@@ -181,6 +184,7 @@ class OverlayService : Service() {
             // odağı kesin olarak kapatıyoruz.
             etInterval.clearFocus()
             etKeywords.clearFocus()
+            etMinMatches.clearFocus()
             imm.hideSoftInputFromWindow(panel.windowToken, 0)
             params.flags = params.flags or WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE
             windowManager.updateViewLayout(panel, params)
@@ -205,6 +209,9 @@ class OverlayService : Service() {
                 tvRegionInfo.text = "En az bir anahtar kelime gir!"
                 return@setOnClickListener
             }
+
+            val enteredMinMatches = etMinMatches.text.toString().toIntOrNull() ?: 1
+            minMatches = enteredMinMatches.coerceIn(1, keywordList.size)
 
             isClicking = !isClicking
             if (isClicking) {
