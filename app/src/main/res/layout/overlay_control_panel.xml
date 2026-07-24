@@ -52,6 +52,25 @@
         android:textSize="10sp"
         android:layout_marginTop="2dp" />
 
+    <EditText
+        android:id="@+id/etMinMatches"
+        android:layout_width="140dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:hint="En az kaç kelime?"
+        android:inputType="number"
+        android:textColor="@color/white"
+        android:textColorHint="#AAAAAA"
+        android:text="1" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Ekranda anahtar kelimelerden en az bu kadarı aynı anda görünmeden tıklamaz"
+        android:textColor="#999999"
+        android:textSize="10sp"
+        android:layout_marginTop="2dp" />
+
     <TextView
         android:id="@+id/tvRegionInfo"
         android:layout_width="match_parent"
