@@ -67,13 +67,13 @@ class OverlayService : Service() {
         val channelId = "auto_clicker_channel"
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val channel = NotificationChannel(
-                channelId, "Auto Clicker", NotificationManager.IMPORTANCE_LOW
+                channelId, "MY Günlük", NotificationManager.IMPORTANCE_LOW
             )
             val nm = getSystemService(NotificationManager::class.java)
             nm.createNotificationChannel(channel)
         }
         val notification: Notification = NotificationCompat.Builder(this, channelId)
-            .setContentTitle("Auto Clicker çalışıyor")
+            .setContentTitle("MY Günlük çalışıyor")
             .setContentText("Kontrol paneli ekranda açık")
             .setSmallIcon(android.R.drawable.ic_menu_myplaces)
             .setOngoing(true)
