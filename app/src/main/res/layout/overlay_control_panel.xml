@@ -11,7 +11,7 @@
         android:id="@+id/tvDrag"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="≡ Auto Clicker"
+        android:text="≡ MY Günlük"
         android:textColor="@color/white"
         android:textStyle="bold"
         android:padding="4dp" />
